@@ -150,44 +150,99 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CATEGORIES ── */}
+      {/* ── MATTRESS TYPES ── */}
       <section className="relative bg-ivory-deep py-28 overflow-hidden border-y border-linen">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#B8975A_1px,transparent_1px),linear-gradient(to_bottom,#B8975A_1px,transparent_1px)] bg-[size:80px_80px] opacity-[0.04]"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full">
           <div className="flex items-center gap-6 mb-10">
             <div className="w-14 h-[1px] bg-gold"></div>
-            <span className="font-body text-[10px] tracking-[0.6em] text-gold uppercase">Our Products</span>
+            <span className="font-body text-[10px] tracking-[0.6em] text-gold uppercase">Our Collection</span>
           </div>
 
-          <h2 className="font-display text-5xl md:text-7xl text-bark font-light leading-[0.9] mb-20">
+          <h2 className="font-display text-5xl md:text-7xl text-bark font-light leading-[0.9] mb-6">
             The <br/>
             <span className="italic text-gold">Art of</span> <br/>
             Rest.
           </h2>
+          <p className="font-body text-sm text-stone/60 font-light mb-20 max-w-lg">
+            Every Royale Sleepy mattress is crafted to give you the perfect night's sleep — pick the type that suits you best.
+          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { id: 'mattresses', name: 'Mattresses & Pillows', img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80', data: 'Collection 01' },
-              { id: 'sofa',       name: 'Sofa & Furniture Foam', img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80', data: 'Collection 02' },
-              { id: 'industrial', name: 'Industrial Foam', img: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80', data: 'Collection 03' },
-            ].map((cat, i) => (
-              <Link to={`/products?cat=${cat.id}`} key={cat.id} className="group relative block animate-slide-up" style={{ animationDelay: `${i * 150}ms` }}>
-                <div className="aspect-[3/4] overflow-hidden border border-linen relative bg-ivory shadow-sm group-hover:shadow-md transition-shadow duration-500">
-                  <img src={cat.img} alt={cat.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bark/50 via-bark/10 to-transparent opacity-70 group-hover:opacity-50 transition-opacity duration-700"></div>
-                </div>
+              {
+                id: 1,
+                type: 'Ortho Mattress',
+                tag: 'Best for Back Pain',
+                desc: 'High-density orthopedic foam engineered for superior lumbar support and spinal alignment.',
+                badge: '40 kg/m³',
+                img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
+                color: 'from-amber-900/60',
+              },
+              {
+                id: 3,
+                type: 'PU Foam Mattress',
+                tag: 'Most Popular',
+                desc: 'Premium polyurethane foam that balances softness and support — perfect for all sleep positions.',
+                badge: '36 kg/m³',
+                img: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&q=80',
+                color: 'from-forest/60',
+              },
+              {
+                id: 2,
+                type: 'Bonded Foam Mattress',
+                tag: 'Budget Friendly',
+                desc: 'Durable bonded foam with firm, even support. Built to last — ideal for guest rooms and hostels.',
+                badge: '32 kg/m³',
+                img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+                color: 'from-bark/60',
+              },
+              {
+                id: 4,
+                type: 'Spring Mattress',
+                tag: 'Premium Feel',
+                desc: 'Individually wrapped pocket coils for zero motion transfer, luxury bounce, and superior airflow.',
+                badge: 'Pocket Coil',
+                img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80',
+                color: 'from-stone/60',
+              },
+            ].map((item, i) => (
+              <Link to={`/products/${item.id}`} key={item.id} className="group relative block animate-slide-up" style={{ animationDelay: `${i * 120}ms` }}>
+                <div className="aspect-[3/4] overflow-hidden border border-linen relative bg-ivory shadow-sm group-hover:shadow-lg transition-all duration-500">
+                  <img src={item.img} alt={item.type} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000" />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${item.color} via-bark/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-700`}></div>
 
-                <div className="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-1 h-1 bg-gold/80"></div>
-                    <span className="font-body text-[8px] tracking-[0.4em] text-gold/90 uppercase">{cat.data}</span>
+                  {/* Badge */}
+                  <div className="absolute top-4 right-4 bg-gold/90 backdrop-blur-sm px-2 py-1">
+                    <span className="font-body text-[9px] tracking-widest text-white uppercase">{item.badge}</span>
                   </div>
-                  <h3 className="font-display text-xl md:text-2xl text-ivory font-medium tracking-wide uppercase">{cat.name}</h3>
-                  <div className="w-0 group-hover:w-full h-[1px] bg-gold/60 mt-4 transition-all duration-700"></div>
+
+                  {/* Tag */}
+                  <div className="absolute top-4 left-4 border border-white/40 px-2 py-1 backdrop-blur-sm">
+                    <span className="font-body text-[9px] tracking-widest text-white/90 uppercase">{item.tag}</span>
+                  </div>
+
+                  {/* Content */}
+                  <div className="absolute bottom-0 left-0 w-full p-6">
+                    <h3 className="font-display text-xl text-ivory font-medium tracking-wide uppercase mb-2">{item.type}</h3>
+                    <p className="font-body text-[11px] text-white/70 leading-relaxed font-light max-h-0 overflow-hidden group-hover:max-h-20 transition-all duration-500">{item.desc}</p>
+                    <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <span className="font-body text-[9px] tracking-[0.3em] text-gold uppercase">View Details</span>
+                      <div className="w-4 h-[1px] bg-gold"></div>
+                    </div>
+                    <div className="w-0 group-hover:w-full h-[1px] bg-gold/60 mt-2 transition-all duration-700"></div>
+                  </div>
                 </div>
               </Link>
             ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link to="/products" className="inline-flex items-center gap-4 border border-bark/30 px-10 py-4 text-bark text-[11px] tracking-[0.3em] uppercase font-medium hover:bg-bark hover:text-ivory transition-all duration-500">
+              View All Mattresses
+              <ArrowUpRight size={14} />
+            </Link>
           </div>
         </div>
       </section>
