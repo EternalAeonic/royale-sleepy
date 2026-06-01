@@ -25,9 +25,9 @@ export const translations = {
     about_stat_clients: 'Happy Clients',
 
     // Categories
-    categories_title: 'Our Product Range',
-    categories_subtitle: 'Premium foam solutions crafted for every need',
-    cat_mattresses: 'Mattresses & Pillows',
+    categories_title: 'Our Mattresses',
+    categories_subtitle: 'Premium mattresses crafted for every need',
+    cat_mattresses: 'Mattresses',
     cat_sofa: 'Sofa & Furniture Foam',
     cat_industrial: 'Industrial Foam',
     cat_explore: 'Explore Range',
