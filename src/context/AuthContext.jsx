@@ -11,10 +11,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        // Look up saved phone if not provided by Firebase
+        // Look up saved phone and name if not provided by Firebase
         const savedPhone = localStorage.getItem(`phone_${firebaseUser.uid}`);
+        const savedName = localStorage.getItem(`name_${firebaseUser.uid}`);
         
-        let displayName = firebaseUser.displayName;
+        let displayName = firebaseUser.displayName || savedName;
         if (!displayName && firebaseUser.phoneNumber) {
           displayName = `User ${firebaseUser.phoneNumber.slice(-4)}`;
         } else if (!displayName) {
@@ -44,6 +45,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const saveName = (nameStr) => {
+    if (user) {
+      localStorage.setItem(`name_${user.uid}`, nameStr);
+      setUser(prev => ({ ...prev, name: nameStr }));
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -55,7 +63,7 @@ export function AuthProvider({ children }) {
   const isLoggedIn = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, logout, isLoggedIn, loading, savePhone }}>
+    <AuthContext.Provider value={{ user, logout, isLoggedIn, loading, savePhone, saveName }}>
       {children}
     </AuthContext.Provider>
   );

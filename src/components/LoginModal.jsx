@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react';
 import { X, Phone, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { RecaptchaVerifier, signInWithPhoneNumber, signInWithPopup } from 'firebase/auth';
+import { RecaptchaVerifier, signInWithPhoneNumber, signInWithPopup, signInAnonymously } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 
 export default function LoginModal({ onClose }) {
   const { t } = useLanguage();
-  const [step, setStep] = useState('phone'); // 'phone' | 'otp' | 'success'
+  const [step, setStep] = useState('phone'); // 'phone' | 'success' | 'complete_profile'
   const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
-  const { savePhone, user } = useAuth();
+  const { savePhone, saveName, user } = useAuth();
 
   useEffect(() => {
     // Setup recaptcha
@@ -27,7 +28,11 @@ export default function LoginModal({ onClose }) {
     }
   }, []);
 
-  const handleSendOtp = async () => {
+  const handleSimpleLogin = async () => {
+    if (!name.trim()) {
+      setError('Please enter your name.');
+      return;
+    }
     if (phone.length !== 10 || !/^\d{10}$/.test(phone)) {
       setError('Please enter a valid 10-digit mobile number.');
       return;
@@ -36,20 +41,16 @@ export default function LoginModal({ onClose }) {
     setError('');
     
     try {
-      const phoneNumber = `+91${phone}`;
-      const appVerifier = window.recaptchaVerifier;
-      const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      setConfirmationResult(confirmation);
-      setStep('otp');
+      const result = await signInAnonymously(auth);
+      // Save name and phone to local storage using context
+      if (savePhone) savePhone(`+91${phone}`);
+      if (saveName) saveName(name);
+      
+      setStep('success');
+      setTimeout(onClose, 1200);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed to send OTP. Please try again.');
-      // Reset recaptcha on error
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => {
-          grecaptcha.reset(widgetId);
-        });
-      }
+      setError(err.message || 'Failed to login. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,13 @@ export default function LoginModal({ onClose }) {
       }
     } catch (err) {
       console.error(err);
-      setError('Failed to sign in with Google.');
+      if (err.code === 'auth/unauthorized-domain') {
+        setError('Error: This domain (vercel.app) is not authorized in Firebase Console.');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Login cancelled.');
+      } else {
+        setError(err.message || 'Failed to sign in with Google.');
+      }
     } finally {
       setLoading(false);
     }
@@ -164,6 +171,23 @@ export default function LoginModal({ onClose }) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="w-full px-4 py-3 rounded-xl text-white text-sm outline-none transition-all"
+                      style={{
+                        background: 'rgba(255,255,255,0.07)',
+                        border: '1px solid rgba(255,255,255,0.15)'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wider">
                       {t('login_phone_label')}
                     </label>
                     <div className="flex">
@@ -184,7 +208,7 @@ export default function LoginModal({ onClose }) {
                           border: '1px solid rgba(255,255,255,0.15)',
                           borderLeft: 'none',
                         }}
-                        onKeyDown={e => e.key === 'Enter' && handleSendOtp()}
+                        onKeyDown={e => e.key === 'Enter' && handleSimpleLogin()}
                         maxLength={10}
                       />
                     </div>
@@ -193,11 +217,11 @@ export default function LoginModal({ onClose }) {
                   {error && <p className="text-red-400 text-xs">{error}</p>}
 
                   <button
-                    onClick={handleSendOtp}
+                    onClick={handleSimpleLogin}
                     disabled={loading}
                     className="w-full btn-gold py-3 rounded-xl text-white font-semibold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Sending...' : t('login_send_otp')}
+                    {loading ? 'Signing In...' : 'Sign In'}
                   </button>
 
                   <div className="relative flex items-center py-2">
