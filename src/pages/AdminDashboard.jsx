@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, Video, LogOut, Plus, Pencil, Trash2,
   Save, X, ShieldCheck, Upload, ImagePlus, ListPlus,
   ToggleLeft, ToggleRight, AlertTriangle, RefreshCcw,
-  Eye, CheckCircle2, ArrowLeft, Layers, Info, Users, Phone, Mail, Clock
+  Eye, CheckCircle2, ArrowLeft, Layers, Info, Users, Phone, Mail, Clock, Settings
 } from 'lucide-react';
 
 // ─── Image Upload Component ───────────────────────────────────────────────────
@@ -690,7 +690,7 @@ export default function AdminDashboard() {
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'video', label: 'Hero Video', icon: Video },
+    { id: 'assets', label: 'Website Assets', icon: Settings },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'users', label: 'Users', icon: Users },
   ];
@@ -759,14 +759,33 @@ export default function AdminDashboard() {
       <main className="lg:ml-60 flex-1 min-h-screen pt-20 lg:pt-0">
         <div className="max-w-5xl mx-auto p-6 lg:p-10">
           {active === 'dashboard' && <DashboardView products={products} categories={categories} />}
-          {active === 'video' && (
+          {active === 'assets' && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-display text-3xl text-bark font-light">Hero Video</h2>
-                <p className="font-body text-sm text-stone/50 mt-1">Change the background video on the Home page.</p>
+                <h2 className="font-display text-3xl text-bark font-light">Website Assets</h2>
+                <p className="font-body text-sm text-stone/50 mt-1">Manage global images and videos across your website.</p>
               </div>
-              <div className="bg-white rounded-2xl border border-linen p-7 shadow-sm">
-                <VideoUploader current={settings.heroVideo} onSave={(fn) => updateSettings({ heroVideo: fn })} />
+              <div className="bg-white rounded-2xl border border-linen p-7 shadow-sm space-y-8">
+                <div>
+                  <h3 className="font-display text-xl text-bark mb-4">Hero Background Video</h3>
+                  <VideoUploader current={settings.heroVideo} onSave={(fn) => updateSettings({ heroVideo: fn })} />
+                </div>
+                
+                <hr className="border-linen" />
+                
+                <div>
+                  <h3 className="font-display text-xl text-bark mb-2">Home Page: About Section Image</h3>
+                  <p className="font-body text-xs text-stone/50 mb-4">Appears on the Home page in the About/Vision section.</p>
+                  <ImageUploader images={[settings.homeAboutImage]} onChange={(imgs) => updateSettings({ homeAboutImage: imgs[0] })} />
+                </div>
+
+                <hr className="border-linen" />
+                
+                <div>
+                  <h3 className="font-display text-xl text-bark mb-2">About Page: Hero Image</h3>
+                  <p className="font-body text-xs text-stone/50 mb-4">The main professional model image at the top of the About page.</p>
+                  <ImageUploader images={[settings.aboutHeroImage]} onChange={(imgs) => updateSettings({ aboutHeroImage: imgs[0] })} />
+                </div>
               </div>
             </div>
           )}

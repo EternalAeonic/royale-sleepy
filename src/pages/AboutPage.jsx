@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Award, Shield, Heart, Gem, Star, Users } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
+import { useAdmin } from '../context/AdminContext';
 
 const milestones = [
   { year: '2015', title: 'Foundation', desc: 'Sree Sainath Enterprise was established with a vision to bring premium mattresses to Odisha.' },
@@ -20,6 +21,7 @@ const values = [
 
 export default function AboutPage() {
   const { t } = useLanguage();
+  const { settings } = useAdmin();
   const [hoveredYear, setHoveredYear] = useState('2024');
 
   return (
@@ -50,7 +52,7 @@ export default function AboutPage() {
             <div className="relative animate-slide-right" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
               <div className="aspect-[4/3] overflow-hidden border border-linen rounded-2xl shadow-lg relative group">
                 <img
-                  src="https://images.unsplash.com/photo-1511295742362-92c96b5add36?q=80&w=1200&auto=format&fit=crop"
+                  src={settings.aboutHeroImage || "https://images.unsplash.com/photo-1511295742362-92c96b5add36?q=80&w=1200&auto=format&fit=crop"}
                   alt="Professional model sleeping peacefully on a premium mattress"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 />

@@ -87,7 +87,7 @@ export default function HomePage() {
             <div className="lg:col-span-5 relative animate-slide-right">
               <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white rounded-xl">
                 <img
-                  src="https://images.unsplash.com/photo-1584036533827-45bce1666e82?q=80&w=1200&auto=format&fit=crop"
+                  src={settings.homeAboutImage || "https://images.unsplash.com/photo-1584036533827-45bce1666e82?q=80&w=1200&auto=format&fit=crop"}
                   alt="Royale Sleepy Mattress"
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
                 />
