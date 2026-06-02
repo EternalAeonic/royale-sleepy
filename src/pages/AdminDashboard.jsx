@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
 import {
@@ -154,110 +156,136 @@ function ImageUploader({ images = [''], onChange }) {
 
 // ─── Video Uploader ───────────────────────────────────────────────────────────
 function VideoUploader({ current, onSave }) {
-  const [url, setUrl] = useState(current || '');
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [preview, setPreview] = useState(current || '');
+  const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
-  const [mode, setMode] = useState(current?.startsWith('http') ? 'url' : 'local');
+  const fileRef = useRef();
 
-  const isDirectVideo = (u) => /\.(mp4|webm|ogg)(\?|$)/i.test(u);
+  const uploadFile = (file) => {
+    if (!file || !file.type.startsWith('video/')) {
+      setError('Please select a video file (MP4, WebM, etc.)');
+      return;
+    }
+    setError('');
+    setUploading(true);
+    setProgress(0);
 
-  const handleSave = () => {
-    onSave(url);
-    setPreview(url);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    const storageRef = ref(storage, `videos/${Date.now()}_${file.name}`);
+    const task = uploadBytesResumable(storageRef, file);
+
+    task.on(
+      'state_changed',
+      (snap) => {
+        const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        setProgress(pct);
+      },
+      (err) => {
+        setUploading(false);
+        setError('Upload failed: ' + err.message);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(task.snapshot.ref);
+        onSave(downloadURL);
+        setPreview(downloadURL);
+        setUploading(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    );
   };
 
-  const previewSrc = mode === 'url' ? url : `/${url}`;
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    uploadFile(e.dataTransfer.files?.[0]);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Mode Tabs */}
-      <div className="flex gap-2 bg-ivory rounded-xl p-1 border border-linen">
-        <button
-          onClick={() => setMode('url')}
-          className={`flex-1 py-2.5 rounded-lg font-body text-xs font-semibold transition-all ${
-            mode === 'url' ? 'bg-white text-gold shadow-sm border border-linen' : 'text-stone/60 hover:text-bark'
-          }`}
-        >
-          🌐 Direct Video URL
-        </button>
-        <button
-          onClick={() => setMode('local')}
-          className={`flex-1 py-2.5 rounded-lg font-body text-xs font-semibold transition-all ${
-            mode === 'local' ? 'bg-white text-gold shadow-sm border border-linen' : 'text-stone/60 hover:text-bark'
-          }`}
-        >
-          📁 Local File (public folder)
-        </button>
-      </div>
 
-      {/* URL Input */}
-      <div className="space-y-3">
-        {mode === 'url' ? (
-          <>
-            <p className="font-body text-xs text-stone/60 leading-relaxed">
-              Paste a <strong>direct .mp4 link</strong>. Works with:
-              <span className="text-gold"> Google Drive</span> (change <code className="bg-ivory px-1 rounded">/view</code> to <code className="bg-ivory px-1 rounded">/preview</code>),
-              <span className="text-gold"> Dropbox</span> (change <code className="bg-ivory px-1 rounded">dl=0</code> to <code className="bg-ivory px-1 rounded">dl=1</code>),
-              or any direct <code className="bg-ivory px-1 rounded">.mp4</code> URL.
-            </p>
-            <div className="flex gap-3">
-              <input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://example.com/video.mp4"
-                className="flex-1 border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
-              />
-              <button
-                onClick={() => setPreview(url)}
-                className="px-4 py-3 rounded-xl font-body text-sm border border-linen text-stone hover:bg-ivory transition-all"
-              >
-                Preview
-              </button>
+      {/* Drag & Drop Zone */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => !uploading && fileRef.current?.click()}
+        className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 ${
+          dragging
+            ? 'border-gold bg-gold/5 scale-[1.02] shadow-lg'
+            : uploading
+            ? 'border-blue-300 bg-blue-50 cursor-not-allowed'
+            : 'border-stone/20 hover:border-gold/60 hover:bg-ivory hover:shadow-sm'
+        }`}
+      >
+        <input
+          ref={fileRef}
+          type="file"
+          accept="video/*"
+          className="hidden"
+          onChange={(e) => uploadFile(e.target.files?.[0])}
+        />
+
+        {uploading ? (
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center">
+              <Upload size={28} className="text-blue-500 animate-bounce" />
             </div>
-          </>
+            <p className="font-body text-sm font-semibold text-bark">Uploading your video...</p>
+            <div className="w-full max-w-xs mx-auto bg-stone/10 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-gold to-gold/60 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="font-body text-xs text-stone/60">{progress}% uploaded — please wait</p>
+          </div>
+        ) : saved ? (
+          <div className="space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle2 size={28} className="text-green-500" />
+            </div>
+            <p className="font-body text-sm font-semibold text-green-700">Video uploaded & saved!</p>
+            <p className="font-body text-xs text-green-600">Your website video has been updated.</p>
+          </div>
         ) : (
-          <>
-            <p className="font-body text-xs text-stone/60 leading-relaxed">
-              Place your video file inside the <code className="bg-ivory border border-linen px-2 py-0.5 rounded font-mono text-[11px]">public/</code> folder of the project, then type the filename below.
+          <div className="space-y-3">
+            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center transition-colors duration-300 ${
+              dragging ? 'bg-gold text-white' : 'bg-ivory-deep text-stone/40'
+            }`}>
+              <Upload size={28} />
+            </div>
+            <p className="font-body text-sm font-semibold text-bark">
+              {dragging ? 'Drop your video here!' : 'Drag & Drop your video'}
             </p>
-            <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="e.g. hero-video.mp4"
-              className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
-            />
-          </>
+            <p className="font-body text-xs text-stone/50">or <span className="text-gold font-semibold underline">click to browse</span> from your computer or phone</p>
+            <p className="font-body text-[10px] text-stone/30 mt-2">MP4, WebM, OGG supported</p>
+          </div>
         )}
-
-        <button
-          onClick={handleSave}
-          className={`w-full py-3 rounded-xl font-body text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-            saved ? 'bg-green-500 text-white' : 'bg-gold text-white hover:bg-gold/90'
-          }`}
-        >
-          {saved ? <><CheckCircle2 size={16} /> Saved! Video Updated.</> : <><Save size={16} /> Save Video</>}
-        </button>
       </div>
 
-      {/* Live Preview */}
-      {preview && (
-        <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video relative">
-          <video key={previewSrc} src={previewSrc} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-80" />
-          <div className="absolute inset-0 flex items-end p-4">
-            <span className="font-body text-[10px] bg-black/60 text-white px-3 py-1 rounded-full truncate max-w-full">Current: {url}</span>
-          </div>
+      {/* Error Message */}
+      {error && (
+        <div className="flex gap-2 items-center bg-red-50 border border-red-100 rounded-xl p-3">
+          <AlertTriangle size={14} className="text-red-500 flex-shrink-0" />
+          <p className="font-body text-xs text-red-600">{error}</p>
         </div>
       )}
 
-      {/* Info Alert */}
-      <div className="flex gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4">
-        <Info size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
-        <p className="font-body text-xs text-blue-700 leading-relaxed">
-          <strong>Tip:</strong> Using a direct URL is the easiest option — paste the link and click Save. The video will update on the website immediately without any deployment needed.
-        </p>
-      </div>
+      {/* Current Video Preview */}
+      {preview && (
+        <div className="space-y-2">
+          <p className="font-body text-xs text-stone/50 uppercase tracking-widest">Current Video Preview</p>
+          <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video relative">
+            <video key={preview} src={preview} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-85" />
+            <div className="absolute inset-0 flex items-end p-4">
+              <span className="font-body text-[10px] bg-black/60 text-white px-3 py-1 rounded-full">✅ Active on website</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
