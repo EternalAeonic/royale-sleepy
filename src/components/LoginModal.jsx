@@ -73,6 +73,8 @@ export default function LoginModal({ onClose }) {
     } finally {
       setLoading(false);
     }
+  };
+
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
