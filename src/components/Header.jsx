@@ -44,13 +44,16 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 lg:h-20">
 
             {/* Logo */}
-            <Link to="/" className="flex flex-col leading-none group">
-              <span className="font-display text-2xl font-semibold text-forest tracking-widest transition-all duration-300 group-hover:text-gold">
-                ROYALE SLEEPY
-              </span>
-              <span className="font-body text-[0.55rem] tracking-[0.25em] text-stone/70 uppercase mt-0.5">
-                Sree Sainath Enterprise
-              </span>
+            <Link to="/" className="flex items-center gap-3 group">
+              <img src="/fome-logo.jpeg" alt="Company Logo" className="w-10 h-10 object-contain" />
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-2xl font-semibold text-forest tracking-widest transition-all duration-300 group-hover:text-gold">
+                  ROYALE SLEEPY
+                </span>
+                <span className="font-body text-[0.55rem] tracking-[0.25em] text-stone/70 uppercase mt-0.5">
+                  Sree Sainath Enterprise
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Nav */}

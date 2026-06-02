@@ -22,13 +22,16 @@ export default function Footer() {
 
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex flex-col leading-none group mb-6 inline-block">
-              <span className="font-display text-3xl font-semibold text-forest tracking-widest transition-all duration-300 group-hover:text-gold">
-                ROYALE SLEEPY
-              </span>
-              <span className="font-body text-[0.55rem] tracking-[0.25em] text-stone/70 uppercase mt-1">
-                Sree Sainath Enterprise
-              </span>
+            <Link to="/" className="flex items-center gap-3 group mb-6">
+              <img src="/fome-logo.jpeg" alt="Company Logo" className="w-12 h-12 object-contain" />
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-3xl font-semibold text-forest tracking-widest transition-all duration-300 group-hover:text-gold">
+                  ROYALE SLEEPY
+                </span>
+                <span className="font-body text-[0.55rem] tracking-[0.25em] text-stone/70 uppercase mt-1">
+                  Sree Sainath Enterprise
+                </span>
+              </div>
             </Link>
             <p className="text-sm mb-6 leading-relaxed text-stone font-light">
               {t('footer_tagline')}
