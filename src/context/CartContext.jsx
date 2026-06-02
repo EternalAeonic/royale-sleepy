@@ -48,13 +48,14 @@ export function CartProvider({ children }) {
   const gst        = Math.round(subtotal * 0.18);
   const total      = subtotal + gst;
 
-  const buildWhatsAppMessage = () => {
+  const buildWhatsAppMessage = (userName) => {
     if (items.length === 0) return '';
     const lines = items.map(i =>
       `• ${i.name} (${i.selectedSize}) × ${i.quantity} = ₹${(i.price * i.quantity).toLocaleString('en-IN')}`
     );
+    const greeting = userName ? `Hi, I'm *${userName}*. ` : `Hi, `;
     const msg = [
-      'Hi Sree Sainath Enterprise (Royale Sleepy)! I would like to place an enquiry:',
+      `${greeting}I would like to place an enquiry (Royale Sleepy):`,
       '',
       ...lines,
       '',

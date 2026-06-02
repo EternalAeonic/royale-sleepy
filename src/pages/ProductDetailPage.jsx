@@ -7,6 +7,7 @@ import StarRating from '../components/StarRating';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
 import { useAdmin } from '../context/AdminContext';
+import { useAuth } from '../context/AuthContext';
 
 const WhatsAppIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -20,6 +21,7 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const { t } = useLanguage();
   const { products } = useAdmin();
+  const { user } = useAuth();
 
   const product = products.find(p => String(p.id) === String(id));
   const [mainImg, setMainImg]           = useState(0);
@@ -40,7 +42,8 @@ export default function ProductDetailPage() {
   }
 
   const handleWhatsApp = () => {
-    const msg = `Hi Sree Sainath Enterprise,\n\nI'm interested in:\n\n*${product.name}* (Royale Sleepy)\nVariant: ${selectedSize}\nQty: 1\n\nPlease confirm availability and delivery details.\n\nThank you!`;
+    const greeting = user?.name ? `Hi, I'm *${user.name}*.` : `Hi,`;
+    const msg = `${greeting}\n\nI'm interested in:\n\n*${product.name}* (Royale Sleepy)\nVariant: ${selectedSize}\nQty: 1\n\nPlease confirm availability and delivery details.\n\nThank you!`;
     window.open(`https://wa.me/918763600036?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

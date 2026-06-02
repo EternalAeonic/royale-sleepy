@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import StarRating from './StarRating';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const WhatsAppIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -11,10 +12,12 @@ const WhatsAppIcon = ({ size = 14 }) => (
 
 export default function ProductCard({ product }) {
   const { t } = useLanguage();
+  const { user } = useAuth();
 
   const handleWhatsApp = (e) => {
     e.preventDefault();
-    const msg = `Hi, I'm interested in ${product.name} (${product.sizes[0]}). Please share more details.`;
+    const greeting = user?.name ? `Hi, I'm *${user.name}*.` : `Hi,`;
+    const msg = `${greeting} I'm interested in *${product.name}* (${product.sizes[0]}). Please share more details and pricing.`;
     window.open(`https://wa.me/918763600036?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

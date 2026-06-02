@@ -3,6 +3,7 @@ import { Trash2, Plus, Minus, ArrowLeft, Tag } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const WhatsAppIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -13,10 +14,11 @@ const WhatsAppIcon = ({ size = 16 }) => (
 export default function CartPage() {
   const { t } = useLanguage();
   const { items, removeFromCart, updateQuantity, subtotal, gst, total, buildWhatsAppMessage } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleWhatsAppOrder = () => {
-    const url = buildWhatsAppMessage();
+    const url = buildWhatsAppMessage(user?.name);
     if (url) window.open(url, '_blank');
   };
 

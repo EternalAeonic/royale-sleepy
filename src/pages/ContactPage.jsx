@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Phone, Mail, MapPin, Send, Globe, ExternalLink, MessageCircle } from 'lucide-react';
 import Footer from '../components/Footer';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const WhatsAppIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -14,7 +15,8 @@ const EMBED_URL = 'https://maps.google.com/maps?q=Tapanga,+Khordha,+Odisha+75201
 
 export default function ContactPage() {
   const { t } = useLanguage();
-  const [form, setForm] = useState({ name: '', phone: '', email: '', subject: '', message: '' });
+  const { user } = useAuth();
+  const [form, setForm] = useState({ name: user?.name || '', phone: user?.phone || '', email: user?.email || '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [focused, setFocused] = useState('');
 
@@ -24,7 +26,9 @@ export default function ContactPage() {
   };
 
   const handleWhatsApp = () => {
-    const msg = `Hi Sree Sainath Enterprise!\n\nI'd like to enquire about Royale Sleepy mattresses.\n\nName: ${form.name || 'Customer'}\nPhone: ${form.phone || 'N/A'}\nMessage: ${form.message || 'Please share product details.'}`;
+    const name = form.name || user?.name || 'Customer';
+    const phone = form.phone || user?.phone || 'N/A';
+    const msg = `Hi Sree Sainath Enterprise!\n\nI'd like to enquire about Royale Sleepy mattresses.\n\nName: ${name}\nPhone: ${phone}\nMessage: ${form.message || 'Please share product details.'}`;
     window.open(`https://wa.me/918763600036?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
