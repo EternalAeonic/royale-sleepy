@@ -42,10 +42,31 @@ export default function LoginModal({ onClose }) {
     
     try {
       const result = await signInAnonymously(auth);
+      const uid = result.user.uid;
+      const phoneStr = `+91${phone}`;
+
       // Save name and phone to local storage using context
-      if (savePhone) savePhone(`+91${phone}`);
+      if (savePhone) savePhone(phoneStr);
       if (saveName) saveName(name);
-      
+
+      // Save user to admin users list
+      const users = JSON.parse(localStorage.getItem('royale_users') || '[]');
+      const existing = users.findIndex(u => u.uid === uid);
+      const userData = {
+        uid,
+        name: name.trim(),
+        phone: phoneStr,
+        email: '',
+        loginMethod: 'Phone',
+        loginAt: new Date().toISOString(),
+      };
+      if (existing >= 0) {
+        users[existing] = { ...users[existing], ...userData };
+      } else {
+        users.push(userData);
+      }
+      localStorage.setItem('royale_users', JSON.stringify(users));
+
       setStep('success');
       setTimeout(onClose, 1200);
     } catch (err) {
@@ -81,9 +102,29 @@ export default function LoginModal({ onClose }) {
     setError('');
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      
+      const firebaseUser = result.user;
+
+      // Save user to admin users list
+      const users = JSON.parse(localStorage.getItem('royale_users') || '[]');
+      const existing = users.findIndex(u => u.uid === firebaseUser.uid);
+      const savedPhone = localStorage.getItem(`phone_${firebaseUser.uid}`) || firebaseUser.phoneNumber || '';
+      const userData = {
+        uid: firebaseUser.uid,
+        name: firebaseUser.displayName || 'Google User',
+        phone: savedPhone,
+        email: firebaseUser.email || '',
+        loginMethod: 'Google',
+        loginAt: new Date().toISOString(),
+      };
+      if (existing >= 0) {
+        users[existing] = { ...users[existing], ...userData };
+      } else {
+        users.push(userData);
+      }
+      localStorage.setItem('royale_users', JSON.stringify(users));
+
       // Check if user has phone number
-      if (!result.user.phoneNumber && !localStorage.getItem(`phone_${result.user.uid}`)) {
+      if (!firebaseUser.phoneNumber && !localStorage.getItem(`phone_${firebaseUser.uid}`)) {
         setStep('complete_profile');
       } else {
         setStep('success');
@@ -92,7 +133,7 @@ export default function LoginModal({ onClose }) {
     } catch (err) {
       console.error(err);
       if (err.code === 'auth/unauthorized-domain') {
-        setError('Error: This domain (vercel.app) is not authorized in Firebase Console.');
+        setError('Error: This domain is not authorized in Firebase Console.');
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError('Login cancelled.');
       } else {

@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, Video, LogOut, Plus, Pencil, Trash2,
   Save, X, ShieldCheck, Upload, ImagePlus, ListPlus,
   ToggleLeft, ToggleRight, AlertTriangle, RefreshCcw,
-  Eye, CheckCircle2, ArrowLeft, Layers, Info
+  Eye, CheckCircle2, ArrowLeft, Layers, Info, Users, Phone, Mail, Clock
 } from 'lucide-react';
 
 // ─── Image Upload Component ───────────────────────────────────────────────────
@@ -532,6 +532,118 @@ function ProductsView({ products, categories, addProduct, updateProduct, deleteP
   );
 }
 
+// ─── Users View ───────────────────────────────────────────────────────────────
+function UsersView() {
+  const [users, setUsers] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('royale_users') || '[]');
+    } catch { return []; }
+  });
+
+  const refresh = () => {
+    try {
+      setUsers(JSON.parse(localStorage.getItem('royale_users') || '[]'));
+    } catch { setUsers([]); }
+  };
+
+  const clearAll = () => {
+    if (window.confirm('Clear all user records? (This only clears the admin list, not Firebase users)')) {
+      localStorage.removeItem('royale_users');
+      setUsers([]);
+    }
+  };
+
+  const formatDate = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="font-display text-3xl text-bark font-light">Users</h2>
+          <p className="font-body text-sm text-stone/50 mt-1">{users.length} registered user{users.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={refresh}
+            className="px-4 py-2.5 rounded-xl font-body text-xs font-semibold border border-stone/20 text-stone hover:bg-linen transition-all flex items-center gap-2">
+            <RefreshCcw size={14} /> Refresh
+          </button>
+          <button onClick={clearAll}
+            className="px-4 py-2.5 rounded-xl font-body text-xs font-semibold border border-red-200 text-red-500 hover:bg-red-50 transition-all flex items-center gap-2">
+            <Trash2 size={14} /> Clear All
+          </button>
+        </div>
+      </div>
+
+      {users.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-linen p-16 text-center">
+          <Users size={48} className="mx-auto mb-4 text-stone/20" />
+          <p className="font-body text-stone/40 text-sm">No users have logged in yet.</p>
+          <p className="font-body text-stone/30 text-xs mt-1">Users will appear here when they sign in.</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-linen shadow-sm overflow-hidden">
+          {/* Table Header */}
+          <div className="grid grid-cols-5 gap-4 px-6 py-4 bg-ivory border-b border-linen">
+            <p className="font-body text-[10px] text-stone/50 uppercase tracking-widest font-semibold">Name</p>
+            <p className="font-body text-[10px] text-stone/50 uppercase tracking-widest font-semibold">Phone</p>
+            <p className="font-body text-[10px] text-stone/50 uppercase tracking-widest font-semibold">Email</p>
+            <p className="font-body text-[10px] text-stone/50 uppercase tracking-widest font-semibold">Method</p>
+            <p className="font-body text-[10px] text-stone/50 uppercase tracking-widest font-semibold">Last Login</p>
+          </div>
+
+          {/* Table Rows */}
+          {users.map((u, i) => (
+            <div key={u.uid || i} className="grid grid-cols-5 gap-4 px-6 py-4 border-b border-linen last:border-0 hover:bg-ivory/50 transition-colors items-center">
+              {/* Name */}
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 border border-gold/20 flex items-center justify-center flex-shrink-0">
+                  <span className="font-display text-sm text-bark font-medium">
+                    {(u.name || '?')[0].toUpperCase()}
+                  </span>
+                </div>
+                <p className="font-body text-sm text-bark font-medium truncate">{u.name || '—'}</p>
+              </div>
+
+              {/* Phone */}
+              <div className="flex items-center gap-2">
+                <Phone size={13} className="text-stone/30 flex-shrink-0" />
+                <p className="font-body text-sm text-stone truncate">{u.phone || '—'}</p>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-2">
+                <Mail size={13} className="text-stone/30 flex-shrink-0" />
+                <p className="font-body text-sm text-stone truncate">{u.email || '—'}</p>
+              </div>
+
+              {/* Method */}
+              <div>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-body font-bold ${
+                  u.loginMethod === 'Google'
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'bg-gold/10 text-gold'
+                }`}>
+                  {u.loginMethod === 'Google' ? '🔵' : '📱'} {u.loginMethod || 'Phone'}
+                </span>
+              </div>
+
+              {/* Login Time */}
+              <div className="flex items-center gap-2">
+                <Clock size={13} className="text-stone/30 flex-shrink-0" />
+                <p className="font-body text-xs text-stone/60">{formatDate(u.loginAt)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 function DashboardView({ products, categories }) {
   const total = products.length;
@@ -580,6 +692,7 @@ export default function AdminDashboard() {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'video', label: 'Hero Video', icon: Video },
     { id: 'products', label: 'Products', icon: Package },
+    { id: 'users', label: 'Users', icon: Users },
   ];
 
   const SidebarContent = () => (
@@ -662,6 +775,7 @@ export default function AdminDashboard() {
               addProduct={addProduct} updateProduct={updateProduct}
               deleteProduct={deleteProduct} resetProducts={resetProducts} />
           )}
+          {active === 'users' && <UsersView />}
         </div>
       </main>
     </div>
