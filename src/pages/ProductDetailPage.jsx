@@ -331,6 +331,55 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
+      {/* ── RELATED PRODUCTS ── */}
+      <section className="bg-ivory-deep py-20 border-t border-linen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="w-10 h-[1px] bg-gold"></div>
+            <h3 className="font-display text-2xl text-bark tracking-wide font-light uppercase">
+              You Might Also Like
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products
+              .filter(p => String(p.id) !== String(id))
+              .slice(0, 3)
+              .map((relatedProd, idx) => (
+                <Link
+                  key={relatedProd.id}
+                  to={`/products/${relatedProd.id}`}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="group block bg-white border border-linen p-4 hover:shadow-xl transition-all duration-500 animate-slide-up"
+                  style={{ animationDelay: `${idx * 150}ms` }}
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-ivory mb-4 relative">
+                    <img 
+                      src={relatedProd.images[0]} 
+                      alt={relatedProd.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" 
+                    />
+                    <div className="absolute top-3 right-3 bg-gold/90 backdrop-blur-sm px-2 py-1 text-white">
+                      <span className="font-body text-[9px] tracking-widest uppercase">{relatedProd.density}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-display text-lg text-bark mb-1 uppercase tracking-wide group-hover:text-gold transition-colors">{relatedProd.name}</h4>
+                    <p className="font-body text-xs text-stone/60 mb-3 line-clamp-1">{relatedProd.shortDescription}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="font-body text-sm text-forest font-medium">₹{relatedProd.price.toLocaleString()}</span>
+                      <div className="flex items-center gap-1 text-gold">
+                        <span className="font-body text-[10px] uppercase tracking-widest">View</span>
+                        <ChevronRight size={12} />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
