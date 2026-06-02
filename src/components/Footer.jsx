@@ -57,10 +57,10 @@ export default function Footer() {
             <h4 className="font-display text-lg text-bark mb-6 tracking-wide font-medium">{t('footer_products')}</h4>
             <ul className="space-y-3">
               {[
-                { label: 'Mattresses & Pillows', to: '/products?cat=mattresses' },
-                { label: 'Sofa & Furniture Foam', to: '/products?cat=sofa' },
-                { label: 'Industrial Foam', to: '/products?cat=industrial' },
-                { label: 'Custom Orders', to: '/contact' },
+                { label: 'Ortho Mattress', to: '/products/1' },
+                { label: 'Bonded Foam Mattress', to: '/products/2' },
+                { label: 'PU Foam Mattress', to: '/products/3' },
+                { label: 'Spring Mattress', to: '/products/4' },
               ].map(item => (
                 <li key={item.label}>
                   <Link to={item.to}
