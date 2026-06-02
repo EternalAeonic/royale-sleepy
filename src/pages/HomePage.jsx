@@ -43,13 +43,13 @@ export default function HomePage() {
           <p className="font-body text-[10px] sm:text-xs uppercase tracking-[0.5em] text-gold/90 mb-6">
             Sree Sainath Enterprise
           </p>
-          <h1 className="font-body text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-[0.2em] text-white text-center leading-[1.2] uppercase">
+          <h1 className="font-body text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-light tracking-[0.2em] text-white text-center leading-[1.2] uppercase animate-slide-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
             Royale Sleepy
           </h1>
-          <h2 className="font-body text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.3em] text-gold/80 mt-2 uppercase">
+          <h2 className="font-body text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.3em] text-gold/80 mt-2 uppercase animate-slide-up" style={{ animationDelay: '0.5s', animationFillMode: 'both' }}>
             Comfort.
           </h2>
-          <div className="mt-12 flex flex-col items-center gap-8">
+          <div className="mt-12 flex flex-col items-center gap-8 animate-zoom-in" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
             <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-gold to-transparent animate-line-expand"></div>
             <p className="font-body text-[10px] uppercase tracking-[0.4em] text-white/70 text-center max-w-md">
               {t('hero_subtagline')}
@@ -84,19 +84,16 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
 
-            <div className="lg:col-span-5 relative animate-slide-up">
-              <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  src="/3d-mattress.mp4"
+            <div className="lg:col-span-5 relative animate-slide-right">
+              <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white rounded-xl">
+                <img
+                  src="https://images.unsplash.com/photo-1584036533827-45bce1666e82?q=80&w=1200&auto=format&fit=crop"
+                  alt="Royale Sleepy Mattress"
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-bark/10 via-transparent to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-bark/30 via-transparent to-transparent pointer-events-none"></div>
               </div>
-              <div className="absolute -inset-4 border border-gold/10 -z-10 translate-x-4 translate-y-4 hidden md:block"></div>
+              <div className="absolute -inset-4 border-2 border-gold/20 -z-10 translate-x-4 translate-y-4 hidden md:block rounded-xl"></div>
             </div>
 
             <div className="lg:col-span-7 space-y-10 animate-slide-up" style={{ animationDelay: '200ms' }}>

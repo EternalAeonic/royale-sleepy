@@ -32,8 +32,8 @@ export default function AboutPage() {
         {/* Soft Glow Effects */}
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-gold/10 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 animate-fade-in">
-          <div className="inline-flex items-center gap-4 mb-8">
+        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+          <div className="inline-flex items-center gap-4 mb-8 animate-zoom-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
             <div className="w-12 h-[1px] bg-gold/60"></div>
             <span className="font-body text-[10px] uppercase tracking-[0.5em] text-gold font-medium">Our Story</span>
             <div className="w-12 h-[1px] bg-gold/60"></div>
@@ -41,7 +41,7 @@ export default function AboutPage() {
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide text-bark leading-[0.9] uppercase mb-8">
             The Pursuit of <br/> <span className="italic text-gold">Perfect Sleep.</span>
           </h1>
-          <p className="font-body text-stone text-sm md:text-base font-light max-w-2xl mx-auto leading-relaxed">
+          <p className="font-body text-stone text-sm md:text-base font-light max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
             {t('about_description') || "We don't just sell mattresses; we curate the foundation of your daily energy. Sree Sainath Enterprise has been transforming bedrooms into royal sanctuaries since 2015."}
           </p>
         </div>
@@ -57,8 +57,8 @@ export default function AboutPage() {
               { icon: Award, value: '50+', label: 'Products Available' },
               { icon: Shield, value: '100%', label: 'Quality Assured' },
             ].map((s, i) => (
-              <div key={i} className="text-center group px-4">
-                <s.icon className="w-5 h-5 mx-auto mb-4 text-gold/40 group-hover:text-gold transition-colors duration-500" />
+              <div key={i} className="text-center group px-4 animate-slide-up" style={{ animationDelay: `${i * 150}ms`, animationFillMode: 'both' }}>
+                <s.icon className="w-5 h-5 mx-auto mb-4 text-gold/40 group-hover:text-gold transition-colors duration-500 animate-zoom-in" />
                 <div className="font-display text-4xl md:text-5xl text-forest font-light tracking-widest mb-3 group-hover:text-gold transition-colors duration-500">
                   {s.value}
                 </div>
@@ -119,6 +119,19 @@ export default function AboutPage() {
               </div>
             </div>
 
+            {/* Right side: Image block */}
+            <div className="lg:col-span-5 relative animate-slide-right" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+              <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white rounded-xl">
+                <img
+                  src="https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop"
+                  alt="Premium Sleep Experience"
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bark/30 via-transparent to-transparent pointer-events-none"></div>
+              </div>
+              <div className="absolute -inset-4 border-2 border-gold/20 -z-10 translate-x-4 translate-y-4 hidden md:block rounded-xl"></div>
+            </div>
+            
           </div>
         </div>
       </section>
