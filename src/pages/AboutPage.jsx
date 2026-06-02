@@ -32,18 +32,33 @@ export default function AboutPage() {
         {/* Soft Glow Effects */}
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-gold/10 blur-[120px] rounded-full pointer-events-none" />
 
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-20 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-          <div className="inline-flex items-center gap-4 mb-8 animate-zoom-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-            <div className="w-12 h-[1px] bg-gold/60"></div>
-            <span className="font-body text-[10px] uppercase tracking-[0.5em] text-gold font-medium">Our Story</span>
-            <div className="w-12 h-[1px] bg-gold/60"></div>
+        <div className="max-w-7xl mx-auto px-6 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="text-left animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+              <div className="inline-flex items-center gap-4 mb-8 animate-zoom-in" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+                <div className="w-12 h-[1px] bg-gold/60"></div>
+                <span className="font-body text-[10px] uppercase tracking-[0.5em] text-gold font-medium">Our Story</span>
+              </div>
+              <h1 className="font-display text-5xl md:text-7xl font-light tracking-wide text-bark leading-[1] uppercase mb-8">
+                The Pursuit of <br/> <span className="italic text-gold font-medium">Perfect Sleep.</span>
+              </h1>
+              <p className="font-body text-stone text-sm md:text-base font-light max-w-xl leading-relaxed animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+                {t('about_description') || "We don't just sell mattresses; we curate the foundation of your daily energy. Sree Sainath Enterprise has been transforming bedrooms into royal sanctuaries since 2015, prioritizing your comfort, health, and well-being."}
+              </p>
+            </div>
+            
+            <div className="relative animate-slide-right" style={{ animationDelay: '0.8s', animationFillMode: 'both' }}>
+              <div className="aspect-[4/3] overflow-hidden border border-linen rounded-2xl shadow-lg relative group">
+                <img
+                  src="https://images.unsplash.com/photo-1511295742362-92c96b5add36?q=80&w=1200&auto=format&fit=crop"
+                  alt="Professional model sleeping peacefully on a premium mattress"
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bark/40 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+              </div>
+              <div className="absolute -inset-4 border-2 border-gold/20 -z-10 translate-x-4 translate-y-4 hidden md:block rounded-2xl"></div>
+            </div>
           </div>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide text-bark leading-[0.9] uppercase mb-8">
-            The Pursuit of <br/> <span className="italic text-gold">Perfect Sleep.</span>
-          </h1>
-          <p className="font-body text-stone text-sm md:text-base font-light max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
-            {t('about_description') || "We don't just sell mattresses; we curate the foundation of your daily energy. Sree Sainath Enterprise has been transforming bedrooms into royal sanctuaries since 2015."}
-          </p>
         </div>
       </section>
 
@@ -119,19 +134,6 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Right side: Image block */}
-            <div className="lg:col-span-5 relative animate-slide-right" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-              <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white rounded-xl">
-                <img
-                  src="https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1200&auto=format&fit=crop"
-                  alt="Premium Sleep Experience"
-                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bark/30 via-transparent to-transparent pointer-events-none"></div>
-              </div>
-              <div className="absolute -inset-4 border-2 border-gold/20 -z-10 translate-x-4 translate-y-4 hidden md:block rounded-xl"></div>
-            </div>
-            
           </div>
         </div>
       </section>
