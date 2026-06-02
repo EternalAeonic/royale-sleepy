@@ -100,6 +100,9 @@ export default function Header() {
                     onClick={() => setShowUserMenu(v => !v)}
                     className="hidden lg:flex items-center gap-2 px-3 py-1.5 border border-forest/30 text-forest text-xs font-medium hover:bg-forest hover:text-ivory transition-all duration-300"
                   >
+                    {user.photoURL && (
+                      <img src={user.photoURL} alt={user.name} className="w-4 h-4 rounded-full object-cover" />
+                    )}
                     {user.name}
                   </button>
                   {showUserMenu && (
