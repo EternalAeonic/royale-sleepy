@@ -774,9 +774,9 @@ export default function AdminDashboard() {
                 <hr className="border-linen" />
                 
                 <div>
-                  <h3 className="font-display text-xl text-bark mb-2">Home Page: About Section Image</h3>
-                  <p className="font-body text-xs text-stone/50 mb-4">Appears on the Home page in the About/Vision section.</p>
-                  <ImageUploader images={[settings.homeAboutImage]} onChange={(imgs) => updateSettings({ homeAboutImage: imgs[0] })} />
+                  <h3 className="font-display text-xl text-bark mb-2">Home Page: About Section Video</h3>
+                  <p className="font-body text-xs text-stone/50 mb-4">Appears on the Home page in the About/Vision section. It will auto-play on loop.</p>
+                  <VideoUploader current={settings.homeAboutVideo} onSave={(fn) => updateSettings({ homeAboutVideo: fn })} />
                 </div>
 
                 <hr className="border-linen" />

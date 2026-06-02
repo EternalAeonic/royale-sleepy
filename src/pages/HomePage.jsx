@@ -84,19 +84,31 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
 
-            <div className="lg:col-span-5 relative animate-slide-right">
-              <div className="aspect-[4/5] overflow-hidden border border-linen group shadow-sm bg-white rounded-xl">
-                <img
-                  src={settings.homeAboutImage || "https://images.unsplash.com/photo-1584036533827-45bce1666e82?q=80&w=1200&auto=format&fit=crop"}
-                  alt="Royale Sleepy Mattress"
-                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000"
+            <div className="lg:col-span-6 relative group perspective-1000">
+              {/* Animated decorative borders */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-gold/30 via-transparent to-bark/20 rounded-2xl -z-10 group-hover:scale-105 transition-transform duration-1000 blur-sm"></div>
+              <div className="absolute inset-4 border border-white/40 rounded-xl z-20 pointer-events-none scale-105 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-1000"></div>
+              
+              <div className="aspect-[4/5] md:aspect-square lg:aspect-[4/5] overflow-hidden border border-linen shadow-2xl bg-white rounded-xl relative transform transition-all duration-1000 group-hover:rotate-y-[-5deg] group-hover:rotate-x-[2deg]">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  src={`/${settings.homeAboutVideo || 'hero-video.mp4'}`}
+                  className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-bark/30 via-transparent to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-bark/40 via-transparent to-transparent pointer-events-none"></div>
+                
+                {/* Floating animated badge */}
+                <div className="absolute bottom-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 flex items-center gap-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-300">
+                  <div className="w-2 h-2 rounded-full bg-gold animate-ping"></div>
+                  <span className="font-body text-[10px] text-white uppercase tracking-widest font-semibold">Premium Quality</span>
+                </div>
               </div>
-              <div className="absolute -inset-4 border-2 border-gold/20 -z-10 translate-x-4 translate-y-4 hidden md:block rounded-xl"></div>
             </div>
 
-            <div className="lg:col-span-7 space-y-10 animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <div className="lg:col-span-6 space-y-10 animate-slide-up" style={{ animationDelay: '200ms' }}>
               <div>
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-10 h-[1px] bg-gold"></div>
@@ -117,28 +129,28 @@ export default function HomePage() {
                       { dot: 'bg-purple-300', label: 'Memory Foam Core', desc: 'Pressure point relief & body contouring' },
                       { dot: 'bg-gray-200', label: 'Spring Bonnel System', desc: 'Bounce & enhanced air circulation' },
                     ].map((item) => (
-                      <div key={item.label} className="flex items-start gap-3">
-                        <span className={`mt-1.5 w-3 h-3 rounded-full flex-shrink-0 ${item.dot} border border-stone/20`}></span>
+                      <div key={item.label} className="flex items-start gap-3 p-3 rounded-xl hover:bg-white hover:shadow-sm transition-all duration-300 border border-transparent hover:border-linen">
+                        <span className={`mt-1.5 w-3 h-3 rounded-full flex-shrink-0 ${item.dot} border border-stone/20 shadow-sm`}></span>
                         <div>
                           <p className="font-body text-xs font-semibold text-bark">{item.label}</p>
-                          <p className="font-body text-[11px] text-stone/60 font-light">{item.desc}</p>
+                          <p className="font-body text-[11px] text-stone/60 font-light mt-0.5">{item.desc}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <p className="font-body text-xs text-stone/50 font-light tracking-wider pt-2">
+                  <p className="font-body text-xs text-stone/40 font-light tracking-wider pt-4 border-t border-linen/50 mt-6">
                     Plot No 1574, OCC Chhaka, Tapanga, Khordha, Odisha — 752018
                   </p>
                 </div>
               </div>
 
               <Link to="/about" className="inline-flex items-center gap-5 group mt-4">
-                <div className="w-12 h-12 border border-forest/30 flex items-center justify-center text-forest group-hover:bg-forest group-hover:text-ivory transition-all duration-500">
-                  <ArrowUpRight size={18} />
+                <div className="w-12 h-12 border border-gold/40 rounded-full flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-white group-hover:border-gold transition-all duration-500 shadow-sm">
+                  <ArrowUpRight size={18} className="transform group-hover:rotate-45 transition-transform duration-500" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-body text-[10px] tracking-[0.4em] text-forest uppercase">Our Story</span>
-                  <div className="h-[1px] bg-forest/40 w-0 group-hover:w-full transition-all duration-700"></div>
+                  <span className="font-body text-[10px] tracking-[0.4em] text-bark uppercase font-bold group-hover:text-gold transition-colors duration-300">Our Story</span>
+                  <div className="h-[1px] bg-gold/40 w-0 group-hover:w-full transition-all duration-700 mt-1"></div>
                 </div>
               </Link>
             </div>
