@@ -154,76 +154,109 @@ function ImageUploader({ images = [''], onChange }) {
 
 // ─── Video Uploader ───────────────────────────────────────────────────────────
 function VideoUploader({ current, onSave }) {
-  const [dragging, setDragging] = useState(false);
-  const [filename, setFilename] = useState(current);
-  const [preview, setPreview] = useState(`/${current}`);
+  const [url, setUrl] = useState(current || '');
+  const [preview, setPreview] = useState(current || '');
   const [saved, setSaved] = useState(false);
-  const fileRef = useRef();
+  const [mode, setMode] = useState(current?.startsWith('http') ? 'url' : 'local');
 
-  const handleFile = (file) => {
-    if (!file || !file.type.startsWith('video/')) return;
-    // Since we can't truly write to disk from browser, guide user to public folder
-    // but show a preview of the selected file
-    const url = URL.createObjectURL(file);
+  const isDirectVideo = (u) => /\.(mp4|webm|ogg)(\?|$)/i.test(u);
+
+  const handleSave = () => {
+    onSave(url);
     setPreview(url);
-    setFilename(file.name);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragging(false);
-    handleFile(e.dataTransfer.files?.[0]);
-  };
-
-  const save = () => {
-    onSave(filename);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
 
+  const previewSrc = mode === 'url' ? url : `/${url}`;
+
   return (
     <div className="space-y-6">
-      {/* Preview */}
-      <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video relative">
-        <video key={preview} src={preview} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-80" />
-        <div className="absolute inset-0 flex items-end p-4">
-          <span className="font-body text-[10px] bg-black/60 text-white px-3 py-1 rounded-full">Current: {filename}</span>
-        </div>
+      {/* Mode Tabs */}
+      <div className="flex gap-2 bg-ivory rounded-xl p-1 border border-linen">
+        <button
+          onClick={() => setMode('url')}
+          className={`flex-1 py-2.5 rounded-lg font-body text-xs font-semibold transition-all ${
+            mode === 'url' ? 'bg-white text-gold shadow-sm border border-linen' : 'text-stone/60 hover:text-bark'
+          }`}
+        >
+          🌐 Direct Video URL
+        </button>
+        <button
+          onClick={() => setMode('local')}
+          className={`flex-1 py-2.5 rounded-lg font-body text-xs font-semibold transition-all ${
+            mode === 'local' ? 'bg-white text-gold shadow-sm border border-linen' : 'text-stone/60 hover:text-bark'
+          }`}
+        >
+          📁 Local File (public folder)
+        </button>
       </div>
 
-      {/* Drop zone */}
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => fileRef.current?.click()}
-        className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-200 ${
-          dragging ? 'border-gold bg-gold/5 scale-[1.01]' : 'border-stone/20 hover:border-gold/50 hover:bg-ivory'
-        }`}
-      >
-        <Upload size={36} className={`mx-auto mb-3 ${dragging ? 'text-gold' : 'text-stone/30'}`} />
-        <p className="font-body text-sm font-semibold text-bark mb-1">
-          {dragging ? 'Drop video here!' : 'Drag & Drop your video'}
+      {/* URL Input */}
+      <div className="space-y-3">
+        {mode === 'url' ? (
+          <>
+            <p className="font-body text-xs text-stone/60 leading-relaxed">
+              Paste a <strong>direct .mp4 link</strong>. Works with:
+              <span className="text-gold"> Google Drive</span> (change <code className="bg-ivory px-1 rounded">/view</code> to <code className="bg-ivory px-1 rounded">/preview</code>),
+              <span className="text-gold"> Dropbox</span> (change <code className="bg-ivory px-1 rounded">dl=0</code> to <code className="bg-ivory px-1 rounded">dl=1</code>),
+              or any direct <code className="bg-ivory px-1 rounded">.mp4</code> URL.
+            </p>
+            <div className="flex gap-3">
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com/video.mp4"
+                className="flex-1 border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
+              />
+              <button
+                onClick={() => setPreview(url)}
+                className="px-4 py-3 rounded-xl font-body text-sm border border-linen text-stone hover:bg-ivory transition-all"
+              >
+                Preview
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="font-body text-xs text-stone/60 leading-relaxed">
+              Place your video file inside the <code className="bg-ivory border border-linen px-2 py-0.5 rounded font-mono text-[11px]">public/</code> folder of the project, then type the filename below.
+            </p>
+            <input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="e.g. hero-video.mp4"
+              className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
+            />
+          </>
+        )}
+
+        <button
+          onClick={handleSave}
+          className={`w-full py-3 rounded-xl font-body text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+            saved ? 'bg-green-500 text-white' : 'bg-gold text-white hover:bg-gold/90'
+          }`}
+        >
+          {saved ? <><CheckCircle2 size={16} /> Saved! Video Updated.</> : <><Save size={16} /> Save Video</>}
+        </button>
+      </div>
+
+      {/* Live Preview */}
+      {preview && (
+        <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video relative">
+          <video key={previewSrc} src={previewSrc} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-80" />
+          <div className="absolute inset-0 flex items-end p-4">
+            <span className="font-body text-[10px] bg-black/60 text-white px-3 py-1 rounded-full truncate max-w-full">Current: {url}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Info Alert */}
+      <div className="flex gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4">
+        <Info size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
+        <p className="font-body text-xs text-blue-700 leading-relaxed">
+          <strong>Tip:</strong> Using a direct URL is the easiest option — paste the link and click Save. The video will update on the website immediately without any deployment needed.
         </p>
-        <p className="font-body text-xs text-stone/50">or tap to pick from your phone / computer</p>
-        <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
-      </div>
-
-      {/* Manual filename */}
-      <div className="bg-ivory rounded-2xl p-5 border border-linen space-y-3">
-        <p className="font-body text-xs font-semibold text-bark">Or enter filename manually</p>
-        <p className="font-body text-[10px] text-stone/50">Place your video in the <code className="bg-white px-1.5 py-0.5 rounded border border-linen">public</code> folder and type the name below.</p>
-        <div className="flex gap-3">
-          <input
-            value={filename}
-            onChange={(e) => setFilename(e.target.value)}
-            placeholder="e.g. my-video.mp4"
-            className="flex-1 border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
-          />
-          <button onClick={save} className={`px-6 py-3 rounded-xl font-body text-sm font-semibold transition-all flex items-center gap-2 ${saved ? 'bg-green-500 text-white' : 'bg-gold text-white hover:bg-gold-light'}`}>
-            {saved ? <><CheckCircle2 size={16} /> Saved!</> : <><Save size={16} /> Save</>}
-          </button>
-        </div>
       </div>
     </div>
   );

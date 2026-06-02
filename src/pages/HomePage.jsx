@@ -11,6 +11,15 @@ export default function HomePage() {
   const heroRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
+  // Support both full URLs and local filenames in the public/ folder
+  const heroVideoSrc = settings.heroVideo?.startsWith('http')
+    ? settings.heroVideo
+    : `/${settings.heroVideo || 'hero-video.mp4'}`;
+
+  const homeAboutVideoSrc = settings.homeAboutVideo?.startsWith('http')
+    ? settings.homeAboutVideo
+    : `/${settings.homeAboutVideo || 'hero-video.mp4'}`;
+
   useEffect(() => {
     const el = heroRef.current;
     const onScroll = () => {
@@ -33,7 +42,7 @@ export default function HomePage() {
             playsInline
             className="w-full h-full object-cover opacity-60"
           >
-            <source src={`/${settings.heroVideo}`} type="video/mp4" />
+            <source src={heroVideoSrc} type="video/mp4" />
           </video>
         </div>
 
@@ -95,7 +104,7 @@ export default function HomePage() {
                   loop
                   muted
                   playsInline
-                  src={`/${settings.homeAboutVideo || 'hero-video.mp4'}`}
+                  src={homeAboutVideoSrc}
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-bark/40 via-transparent to-transparent pointer-events-none"></div>
