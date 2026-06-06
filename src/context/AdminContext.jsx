@@ -24,8 +24,8 @@ export function AdminProvider({ children }) {
 
   const defaultSettings = {
     heroVideo: 'hero-video.mp4',
-    homeAboutVideo: 'hero-video.mp4',
-    homeAboutImage: 'https://images.unsplash.com/photo-1584036533827-45bce1666e82?q=80&w=1200&auto=format&fit=crop',
+    homeAboutVideo: 'about-video.mp4',
+    homeAboutImage: 'about-section.jpeg',
     aboutHeroImage: 'https://images.unsplash.com/photo-1511295742362-92c96b5add36?q=80&w=1200&auto=format&fit=crop',
     whatsappNumber: '918763600036'
   };
