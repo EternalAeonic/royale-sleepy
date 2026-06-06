@@ -33,7 +33,21 @@ export function AdminProvider({ children }) {
   const [settings, setSettings] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_SETTINGS);
-      return stored ? { ...defaultSettings, ...JSON.parse(stored) } : defaultSettings;
+      if (stored) {
+        let parsed = JSON.parse(stored);
+        // Clean up broken firebase links
+        if (parsed.heroVideo && parsed.heroVideo.includes('firebasestorage')) {
+          parsed.heroVideo = defaultSettings.heroVideo;
+        }
+        if (parsed.homeAboutVideo && parsed.homeAboutVideo.includes('firebasestorage')) {
+          parsed.homeAboutVideo = defaultSettings.homeAboutVideo;
+        }
+        if (parsed.homeAboutImage && parsed.homeAboutImage.includes('firebasestorage')) {
+          parsed.homeAboutImage = defaultSettings.homeAboutImage;
+        }
+        return { ...defaultSettings, ...parsed };
+      }
+      return defaultSettings;
     } catch {
       return defaultSettings;
     }
