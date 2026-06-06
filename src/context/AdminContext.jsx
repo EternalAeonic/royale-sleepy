@@ -35,14 +35,17 @@ export function AdminProvider({ children }) {
       const stored = localStorage.getItem(STORAGE_KEY_SETTINGS);
       if (stored) {
         let parsed = JSON.parse(stored);
-        // Clean up broken firebase links
-        if (parsed.heroVideo && parsed.heroVideo.includes('firebasestorage')) {
+        
+        // Clean up broken firebase links or invalid Windows paths
+        const isInvalid = (val) => val && (val.includes('firebasestorage') || val.includes('C:\\') || val.includes('"'));
+        
+        if (isInvalid(parsed.heroVideo)) {
           parsed.heroVideo = defaultSettings.heroVideo;
         }
-        if (parsed.homeAboutVideo && parsed.homeAboutVideo.includes('firebasestorage')) {
+        if (isInvalid(parsed.homeAboutVideo)) {
           parsed.homeAboutVideo = defaultSettings.homeAboutVideo;
         }
-        if (parsed.homeAboutImage && parsed.homeAboutImage.includes('firebasestorage')) {
+        if (isInvalid(parsed.homeAboutImage)) {
           parsed.homeAboutImage = defaultSettings.homeAboutImage;
         }
         return { ...defaultSettings, ...parsed };
