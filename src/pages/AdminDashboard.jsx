@@ -152,90 +152,155 @@ function ImageUploader({ images = [''], onChange }) {
   );
 }
 
-// ─── Video Uploader ───────────────────────────────────────────────────────────
-function VideoUploader({ current, onSave }) {
-  const isUrl = (v) => v?.startsWith('http');
-  const [tab, setTab] = useState(isUrl(current) ? 'url' : 'local');
-  const [input, setInput] = useState(current || '');
+// ─── Cloudinary Uploader ───────────────────────────────────────────────────────────
+function CloudinaryUploader({ current, onSave, accept = "video/*,image/*" }) {
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [preview, setPreview] = useState(current || '');
+  const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
-  const [preview, setPreview] = useState(current || 'hero-video.mp4');
+  const fileRef = useRef();
 
-  const previewSrc = isUrl(preview) ? preview : `/${preview}`;
+  // Cloudinary credentials
+  const CLOUD_NAME = 'dowfmvxy6';
+  const UPLOAD_PRESET = 'royal_app';
 
-  const handleSave = () => {
-    onSave(input);
-    setPreview(input);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const uploadFile = (file) => {
+    if (!file) return;
+    setError('');
+    setUploading(true);
+    setProgress(0);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, true);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        setProgress(pct);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        const secureUrl = response.secure_url;
+        onSave(secureUrl);
+        setPreview(secureUrl);
+        setUploading(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } else {
+        setUploading(false);
+        setError('Upload failed. Please check your Cloudinary settings or try a smaller file.');
+        console.error(xhr.responseText);
+      }
+    };
+
+    xhr.onerror = () => {
+      setUploading(false);
+      setError('Network error occurred during upload.');
+    };
+
+    xhr.send(formData);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    uploadFile(e.dataTransfer.files?.[0]);
   };
 
   return (
     <div className="space-y-6">
-      {/* Tabs */}
-      <div className="flex bg-ivory rounded-xl p-1 border border-linen gap-1">
-        {[
-          { id: 'url', label: '🌐 Paste Video URL' },
-          { id: 'local', label: '📁 Local Filename' },
-        ].map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex-1 py-2.5 rounded-lg font-body text-xs font-semibold transition-all ${
-              tab === t.id ? 'bg-white text-gold shadow-sm border border-linen' : 'text-stone/50 hover:text-bark'
+      {/* Drag & Drop Zone */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => !uploading && fileRef.current?.click()}
+        className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 ${
+          dragging
+            ? 'border-gold bg-gold/5 scale-[1.02] shadow-lg'
+            : uploading
+            ? 'border-blue-300 bg-blue-50 cursor-not-allowed'
+            : 'border-stone/20 hover:border-gold/60 hover:bg-ivory hover:shadow-sm'
+        }`}
+      >
+        <input
+          ref={fileRef}
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(e) => uploadFile(e.target.files?.[0])}
+        />
+
+        {uploading ? (
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center">
+              <Upload size={28} className="text-blue-500 animate-bounce" />
+            </div>
+            <p className="font-body text-sm font-semibold text-bark">Uploading to Cloudinary...</p>
+            <div className="w-full max-w-xs mx-auto bg-stone/10 rounded-full h-2.5 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-gold to-gold/60 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="font-body text-xs text-stone/60">{progress}% uploaded — please wait</p>
+          </div>
+        ) : saved ? (
+          <div className="space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+              <CheckCircle2 size={28} className="text-green-500" />
+            </div>
+            <p className="font-body text-sm font-semibold text-green-700">Uploaded successfully!</p>
+            <p className="font-body text-xs text-green-600">Your website has been updated.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center transition-colors duration-300 ${
+              dragging ? 'bg-gold text-white' : 'bg-ivory-deep text-stone/40'
             }`}>
-            {t.label}
-          </button>
-        ))}
+              <Upload size={28} />
+            </div>
+            <p className="font-body text-sm font-semibold text-bark">
+              {dragging ? 'Drop your file here!' : 'Click or Drag & Drop a file'}
+            </p>
+            <p className="font-body text-[10px] text-stone/30 mt-2">MP4, WebM, JPG, PNG supported</p>
+          </div>
+        )}
       </div>
 
-      {tab === 'url' ? (
-        <div className="space-y-3">
-          <p className="font-body text-xs text-stone/60 leading-relaxed">
-            Paste a <strong>direct .mp4 link</strong> from Google Drive, Dropbox, or any server.
-          </p>
-          <div className="flex gap-2">
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              placeholder="https://example.com/my-video.mp4"
-              className="flex-1 border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
-            />
-            <button onClick={() => setPreview(input)}
-              className="px-4 py-3 rounded-xl font-body text-xs border border-linen text-stone hover:bg-ivory transition-all">
-              Preview
-            </button>
+      {/* Error Message */}
+      {error && (
+        <div className="flex flex-col gap-2 bg-red-50 border border-red-100 rounded-xl p-4">
+          <div className="flex gap-2 items-center">
+            <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
+            <p className="font-body text-xs font-semibold text-red-600">Upload failed!</p>
           </div>
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
-            <p className="font-body text-[11px] text-amber-700">
-              <strong>Google Drive tip:</strong> Open your video → Share → Copy link → Change <code className="bg-amber-100 px-1 rounded">/file/d/ID/view</code> to <code className="bg-amber-100 px-1 rounded">/uc?id=ID&export=download</code>
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <p className="font-body text-xs text-stone/60 leading-relaxed">
-            Place your video in <code className="bg-ivory border border-linen px-2 py-0.5 rounded font-mono text-[11px]">C:\Users\etern\OneDrive\Desktop\fome 1\public\</code> then type the filename.
-          </p>
-          <input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="hero-video.mp4"
-            className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white"
-          />
+          <p className="font-body text-[11px] text-red-700 mt-1">{error}</p>
         </div>
       )}
 
-      <button onClick={handleSave}
-        className={`w-full py-3 rounded-xl font-body text-sm font-semibold flex items-center justify-center gap-2 transition-all ${
-          saved ? 'bg-green-500 text-white' : 'bg-gold text-white hover:bg-gold/90'
-        }`}>
-        {saved ? <><CheckCircle2 size={16} /> Saved! Video Updated on Website.</> : <><Save size={16} /> Save Video</>}
-      </button>
-
-      {/* Preview */}
+      {/* Current Preview */}
       {preview && (
         <div className="space-y-2">
           <p className="font-body text-[10px] text-stone/40 uppercase tracking-widest">Live Preview</p>
-          <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video">
-            <video key={previewSrc} src={previewSrc} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-85" />
+          <div className="rounded-2xl overflow-hidden border border-linen bg-black aspect-video relative">
+            {preview.match(/\.(mp4|webm|ogg)$/i) || preview.includes('/video/upload/') ? (
+              <video key={preview} src={preview} muted loop autoPlay playsInline className="w-full h-full object-cover opacity-85" />
+            ) : (
+              <img src={preview} alt="Preview" className="w-full h-full object-cover opacity-85" />
+            )}
+            <div className="absolute inset-0 flex items-end p-4">
+              <span className="font-body text-[10px] bg-black/60 text-white px-3 py-1 rounded-full">✅ Active on website</span>
+            </div>
           </div>
         </div>
       )}
@@ -781,8 +846,9 @@ export default function AdminDashboard() {
               </div>
               <div className="bg-white rounded-2xl border border-linen p-7 shadow-sm space-y-8">
                 <div>
-                  <h3 className="font-display text-xl text-bark mb-4">Hero Background Video</h3>
-                  <VideoUploader current={settings.heroVideo} onSave={(fn) => updateSettings({ heroVideo: fn })} />
+                  <h3 className="font-display text-xl text-bark mb-2">Hero Background Video</h3>
+                  <p className="font-body text-xs text-stone/50 mb-4">This is the main video playing behind the logo on the home page.</p>
+                  <CloudinaryUploader current={settings.heroVideo} onSave={(fn) => updateSettings({ heroVideo: fn })} accept="video/*" />
                 </div>
                 
                 <hr className="border-linen" />
@@ -790,15 +856,23 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="font-display text-xl text-bark mb-2">Home Page: About Section Video</h3>
                   <p className="font-body text-xs text-stone/50 mb-4">Appears on the Home page in the About/Vision section. It will auto-play on loop.</p>
-                  <VideoUploader current={settings.homeAboutVideo} onSave={(fn) => updateSettings({ homeAboutVideo: fn })} />
+                  <CloudinaryUploader current={settings.homeAboutVideo} onSave={(fn) => updateSettings({ homeAboutVideo: fn })} accept="video/*" />
+                </div>
+
+                <hr className="border-linen" />
+
+                <div>
+                  <h3 className="font-display text-xl text-bark mb-2">Home Page: About Image</h3>
+                  <p className="font-body text-xs text-stone/50 mb-4">This image is used on the Home Page instead of the video on smaller devices.</p>
+                  <CloudinaryUploader current={settings.homeAboutImage} onSave={(fn) => updateSettings({ homeAboutImage: fn })} accept="image/*" />
                 </div>
 
                 <hr className="border-linen" />
                 
                 <div>
                   <h3 className="font-display text-xl text-bark mb-2">About Page: Hero Image</h3>
-                  <p className="font-body text-xs text-stone/50 mb-4">The main professional model image at the top of the About page.</p>
-                  <ImageUploader images={[settings.aboutHeroImage]} onChange={(imgs) => updateSettings({ aboutHeroImage: imgs[0] })} />
+                  <p className="font-body text-xs text-stone/50 mb-4">The main professional model image at the top of the About Us page.</p>
+                  <CloudinaryUploader current={settings.aboutHeroImage} onSave={(fn) => updateSettings({ aboutHeroImage: fn })} accept="image/*" />
                 </div>
               </div>
             </div>
