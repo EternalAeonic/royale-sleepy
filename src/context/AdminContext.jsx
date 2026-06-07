@@ -30,41 +30,41 @@ export function AdminProvider({ children }) {
     whatsappNumber: '918763600036'
   };
 
-  const [settings, setSettings] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_SETTINGS);
-      if (stored) {
-        let parsed = JSON.parse(stored);
-        
-        // Clean up broken firebase links or invalid Windows paths
-        const isInvalid = (val) => val && (val.includes('firebasestorage') || val.includes('C:\\') || val.includes('"'));
-        
-        if (isInvalid(parsed.heroVideo)) {
-          parsed.heroVideo = defaultSettings.heroVideo;
+  const [settings, setSettings] = useState(defaultSettings);
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
+
+  // Load settings from Postgres API
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && Object.keys(data).length > 0) {
+          // Clean invalid paths (just in case they exist in old data)
+          const isInvalid = (val) => val && (val.includes('firebasestorage') || val.includes('C:\\') || val.includes('"'));
+          if (isInvalid(data.heroVideo)) data.heroVideo = defaultSettings.heroVideo;
+          if (isInvalid(data.homeAboutVideo)) data.homeAboutVideo = defaultSettings.homeAboutVideo;
+          
+          setSettings({ ...defaultSettings, ...data });
         }
-        if (isInvalid(parsed.homeAboutVideo)) {
-          parsed.homeAboutVideo = defaultSettings.homeAboutVideo;
+        setIsSettingsLoaded(true);
+      })
+      .catch(err => {
+        console.error('Failed to load settings from DB:', err);
+        // Fallback to local storage or defaults if DB is down
+        const stored = localStorage.getItem(STORAGE_KEY_SETTINGS);
+        if (stored) {
+          try {
+            setSettings({ ...defaultSettings, ...JSON.parse(stored) });
+          } catch (e) {}
         }
-        if (isInvalid(parsed.homeAboutImage)) {
-          parsed.homeAboutImage = defaultSettings.homeAboutImage;
-        }
-        return { ...defaultSettings, ...parsed };
-      }
-      return defaultSettings;
-    } catch {
-      return defaultSettings;
-    }
-  });
+        setIsSettingsLoaded(true);
+      });
+  }, []);
 
   // Persist products
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
   }, [products]);
-
-  // Persist settings
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
-  }, [settings]);
 
   const adminLogin = (password) => {
     if (password === ADMIN_PASSWORD) {
@@ -104,7 +104,21 @@ export function AdminProvider({ children }) {
   };
 
   const updateSettings = (newSettings) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      
+      // Save locally as a backup
+      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(updated));
+      
+      // Save to Postgres
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch(err => console.error('Failed to save settings to DB:', err));
+
+      return updated;
+    });
   };
 
   return (
