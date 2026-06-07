@@ -309,6 +309,36 @@ function CloudinaryUploader({ current, onSave, accept = "video/*,image/*" }) {
 }
 
 // ─── Product Form Modal ───────────────────────────────────────────────────────
+// Reusable components for ProductForm
+const InputField = ({ label, value, onChange, type = 'text', placeholder, required }) => (
+  <div>
+    <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-2">
+      {label}{required && <span className="text-gold ml-1">*</span>}
+    </label>
+    <input 
+      type={type} 
+      value={value} 
+      onChange={(e) => onChange(e.target.value)} 
+      placeholder={placeholder}
+      className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white transition-all" 
+      required={required} 
+    />
+  </div>
+);
+
+const TextArea = ({ label, value, onChange, placeholder, rows = 4 }) => (
+  <div>
+    <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-2">{label}</label>
+    <textarea 
+      value={value} 
+      onChange={(e) => onChange(e.target.value)} 
+      rows={rows} 
+      placeholder={placeholder}
+      className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white resize-none transition-all" 
+    />
+  </div>
+);
+
 function ProductForm({ initial, onSave, onCancel, categories }) {
   const empty = {
     category: 'mattresses', name: '', brand: 'Royale Sleepy',
@@ -334,22 +364,6 @@ function ProductForm({ initial, onSave, onCancel, categories }) {
     { id: 'sizes', label: '📐 Sizes', icon: Layers },
     { id: 'details', label: '📝 Details', icon: Package },
   ];
-
-  const InputField = ({ label, value, onChange, type = 'text', placeholder, required }) => (
-    <div>
-      <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-2">{label}{required && <span className="text-gold ml-1">*</span>}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white transition-all" required={required} />
-    </div>
-  );
-
-  const TextArea = ({ label, value, onChange, placeholder, rows = 4 }) => (
-    <div>
-      <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-2">{label}</label>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} placeholder={placeholder}
-        className="w-full border border-linen rounded-xl px-4 py-3 font-body text-sm focus:outline-none focus:border-gold/50 bg-white resize-none transition-all" />
-    </div>
-  );
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto">
