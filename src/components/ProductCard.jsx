@@ -14,6 +14,12 @@ export default function ProductCard({ product }) {
   const { t } = useLanguage();
   const { user } = useAuth();
 
+  // If product.price is 0 or empty, use the lowest price from sizePrices
+  const sizePricesValues = product.sizePrices ? Object.values(product.sizePrices).filter(v => v > 0) : [];
+  const displayPrice = product.price > 0 ? product.price : (sizePricesValues.length > 0 ? Math.min(...sizePricesValues) : 0);
+  const displayMrp = product.mrp > 0 ? product.mrp : 0;
+  const isStartingFrom = product.price === 0 && sizePricesValues.length > 0;
+
   const handleWhatsApp = (e) => {
     e.preventDefault();
     const greeting = user?.name ? `Hi, I'm *${user.name}*.` : `Hi,`;
@@ -68,12 +74,17 @@ export default function ProductCard({ product }) {
 
           <div className="flex items-end justify-between border-t border-linen pt-4">
             <div className="flex flex-col">
+              {isStartingFrom && (
+                <span className="font-body text-[8px] uppercase tracking-[0.2em] text-stone/50 mb-0.5">Starting from</span>
+              )}
               <span className="font-display text-xl text-forest tracking-widest font-medium">
-                ₹{product.price.toLocaleString('en-IN')}
+                {displayPrice > 0 ? `₹${displayPrice.toLocaleString('en-IN')}` : 'Price on request'}
               </span>
-              <span className="font-body text-[9px] text-stone/50 line-through tracking-[0.2em]">
-                ₹{product.mrp.toLocaleString('en-IN')}
-              </span>
+              {displayMrp > displayPrice && (
+                <span className="font-body text-[9px] text-stone/50 line-through tracking-[0.2em]">
+                  ₹{displayMrp.toLocaleString('en-IN')}
+                </span>
+              )}
             </div>
             <div className="w-8 h-8 border border-linen flex items-center justify-center text-stone group-hover:border-gold group-hover:text-gold transition-colors duration-500">
               <ArrowRight size={12} />
