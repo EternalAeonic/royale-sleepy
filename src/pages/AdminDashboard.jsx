@@ -450,7 +450,26 @@ function ProductForm({ initial, onSave, onCancel, categories }) {
               </div>
 
               <div>
-                <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-3">Size Chart</label>
+                <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-3">Price Per Size (₹)</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {(form.sizes || []).map((sz, i) => (
+                    <div key={i} className="bg-ivory p-4 rounded-xl border border-linen">
+                      <label className="block font-body text-[10px] text-gold uppercase tracking-widest mb-2 font-semibold">{sz}</label>
+                      <input 
+                        type="number"
+                        value={form.sizePrices?.[sz] || ''} 
+                        onChange={e => set('sizePrices', { ...form.sizePrices, [sz]: Number(e.target.value) })}
+                        className="w-full border border-linen rounded-lg px-3 py-2 font-body text-sm bg-white focus:outline-none focus:border-gold/50" 
+                        placeholder="e.g. 18999" 
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="font-body text-[10px] text-stone/40 mt-2">If left empty, the main product price will be shown for that size.</p>
+              </div>
+
+              <div>
+                <label className="block font-body text-xs text-stone/50 uppercase tracking-widest mb-3">Size Chart (in inches)</label>
                 <div className="grid grid-cols-2 gap-3">
                   {['single', 'double', 'queen', 'king'].map(sz => (
                     <div key={sz} className="bg-ivory p-4 rounded-xl border border-linen">

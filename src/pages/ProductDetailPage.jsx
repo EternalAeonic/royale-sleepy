@@ -28,6 +28,11 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || '');
   const [activeTab, setActiveTab]       = useState(0);
 
+  // Get price for the currently selected size
+  const currentPrice = (product?.sizePrices?.[selectedSize]) || product?.price || 0;
+  const currentMrp = product?.mrp || 0;
+  const currentSavings = currentMrp - currentPrice;
+
   if (!product) {
     return (
       <div className="min-h-screen bg-ivory flex items-center justify-center">
@@ -43,11 +48,9 @@ export default function ProductDetailPage() {
 
   const handleWhatsApp = () => {
     const greeting = user?.name ? `Hi, I'm *${user.name}*.` : `Hi,`;
-    const msg = `${greeting}\n\nI'm interested in:\n\n*${product.name}* (Royale Sleepy)\nVariant: ${selectedSize}\nQty: 1\n\nPlease confirm availability and delivery details.\n\nThank you!`;
+    const msg = `${greeting}\n\nI'm interested in:\n\n*${product.name}* (Royale Sleepy)\nVariant: ${selectedSize}\nPrice: ₹${currentPrice.toLocaleString('en-IN')}\nQty: 1\n\nPlease confirm availability and delivery details.\n\nThank you!`;
     window.open(`https://wa.me/918763600036?text=${encodeURIComponent(msg)}`, '_blank');
   };
-
-  const savings = product.mrp - product.price;
 
   return (
     <div className="min-h-screen bg-ivory selection:bg-gold/20 selection:text-bark">
@@ -136,14 +139,16 @@ export default function ProductDetailPage() {
             <div className="py-6 border-y border-linen mb-8">
               <div className="flex items-end gap-5 mb-2">
                 <span className="font-display text-4xl text-forest tracking-widest leading-none font-semibold">
-                  ₹{product.price.toLocaleString('en-IN')}
+                  ₹{currentPrice.toLocaleString('en-IN')}
                 </span>
-                <span className="font-body text-xs text-stone/40 line-through tracking-[0.2em] mb-1">
-                  ₹{product.mrp.toLocaleString('en-IN')}
-                </span>
+                {currentMrp > currentPrice && (
+                  <span className="font-body text-xs text-stone/40 line-through tracking-[0.2em] mb-1">
+                    ₹{currentMrp.toLocaleString('en-IN')}
+                  </span>
+                )}
               </div>
               <div className="text-[10px] uppercase tracking-[0.3em] font-light text-stone/50 mt-3">
-                Inclusive of all taxes · You save ₹{savings.toLocaleString('en-IN')}
+                Inclusive of all taxes{currentSavings > 0 && ` · You save ₹${currentSavings.toLocaleString('en-IN')}`}
               </div>
             </div>
 
@@ -196,26 +201,25 @@ export default function ProductDetailPage() {
             <div className="bg-white rounded-xl shadow-sm border border-linen p-6 mb-8">
               <h3 className="font-display text-2xl font-bold text-bark mb-4">Size Guide</h3>
               <div className="w-full text-sm rounded-lg overflow-hidden border border-[#e6f7e6]">
-                <div className="grid grid-cols-2 py-3 px-4 bg-[#e5f5e8] text-bark font-bold">
+                <div className="grid grid-cols-3 py-3 px-4 bg-[#e5f5e8] text-bark font-bold">
                   <div>Size</div>
-                  <div>Dimensions</div>
+                  <div>Dimensions (inches)</div>
+                  <div>Dimensions (cm)</div>
                 </div>
-                <div className="grid grid-cols-2 py-3 px-4 border-b border-[#f1f1f1] bg-white">
-                  <div>Single</div>
-                  <div>75" x 36"</div>
-                </div>
-                <div className="grid grid-cols-2 py-3 px-4 border-b border-[#f1f1f1] bg-[#fafafa]">
-                  <div>Double</div>
-                  <div>75" x 48"</div>
-                </div>
-                <div className="grid grid-cols-2 py-3 px-4 border-b border-[#f1f1f1] bg-white">
-                  <div>Queen</div>
-                  <div>80" x 60"</div>
-                </div>
-                <div className="grid grid-cols-2 py-3 px-4 bg-[#fafafa]">
-                  <div>King</div>
-                  <div>84" x 72"</div>
-                </div>
+                {[
+                  { name: 'Single', inches: product.sizeChart?.single || '75" x 36"', cm: '190 x 91 cm' },
+                  { name: 'Double', inches: product.sizeChart?.double || '75" x 48"', cm: '190 x 122 cm' },
+                  { name: 'Queen',  inches: product.sizeChart?.queen  || '80" x 60"', cm: '203 x 152 cm' },
+                  { name: 'King',   inches: product.sizeChart?.king   || '84" x 72"', cm: '213 x 183 cm' },
+                ].map((row, i) => (
+                  <div key={row.name} className={`grid grid-cols-3 py-3 px-4 border-b border-[#f1f1f1] last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'} ${
+                    selectedSize.toLowerCase().startsWith(row.name.toLowerCase()) ? 'bg-gold/5 border-l-2 border-l-gold font-semibold text-bark' : ''
+                  }`}>
+                    <div>{row.name}</div>
+                    <div>{row.inches}</div>
+                    <div className="text-stone/50">{row.cm}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
