@@ -13,14 +13,8 @@ export function AdminProvider({ children }) {
     return sessionStorage.getItem(STORAGE_KEY_AUTH) === 'true';
   });
 
-  const [products, setProducts] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY_PRODUCTS);
-      return stored ? JSON.parse(stored) : defaultProducts;
-    } catch {
-      return defaultProducts;
-    }
-  });
+  const [products, setProducts] = useState(defaultProducts);
+  const [isProductsLoaded, setIsProductsLoaded] = useState(false);
 
   const defaultSettings = {
     heroVideo: 'hero-video.mp4',
@@ -61,10 +55,36 @@ export function AdminProvider({ children }) {
       });
   }, []);
 
-  // Persist products
+  // Load products from Postgres API
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(products));
-  }, [products]);
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setProducts(data);
+        }
+        setIsProductsLoaded(true);
+      })
+      .catch(err => {
+        console.error('Failed to load products from DB:', err);
+        const stored = localStorage.getItem(STORAGE_KEY_PRODUCTS);
+        if (stored) {
+          try { setProducts(JSON.parse(stored)); } catch (e) {}
+        }
+        setIsProductsLoaded(true);
+      });
+  }, []);
+
+  // Persist products to LocalStorage as a backup, and to Postgres as main
+  const syncProductsToDB = (newProducts) => {
+    localStorage.setItem(STORAGE_KEY_PRODUCTS, JSON.stringify(newProducts));
+    
+    fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProducts)
+    }).catch(err => console.error('Failed to save products to DB:', err));
+  };
 
   const adminLogin = (password) => {
     if (password === ADMIN_PASSWORD) {
@@ -86,21 +106,33 @@ export function AdminProvider({ children }) {
       ...product,
       id: Date.now(),
     };
-    setProducts(prev => [...prev, newProduct]);
+    setProducts(prev => {
+      const updated = [...prev, newProduct];
+      syncProductsToDB(updated);
+      return updated;
+    });
     return newProduct;
   };
 
   const updateProduct = (id, updates) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    setProducts(prev => {
+      const updated = prev.map(p => p.id === id ? { ...p, ...updates } : p);
+      syncProductsToDB(updated);
+      return updated;
+    });
   };
 
   const deleteProduct = (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
+    setProducts(prev => {
+      const updated = prev.filter(p => p.id !== id);
+      syncProductsToDB(updated);
+      return updated;
+    });
   };
 
   const resetProducts = () => {
     setProducts(defaultProducts);
-    localStorage.removeItem(STORAGE_KEY_PRODUCTS);
+    syncProductsToDB(defaultProducts);
   };
 
   const updateSettings = (newSettings) => {
