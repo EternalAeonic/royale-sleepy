@@ -135,10 +135,41 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Price Block */}
+            {/* Size Selector — pick size FIRST, then price updates below */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-body text-[10px] uppercase tracking-[0.3em] text-stone/60">Select Size / Variant</span>
+                <span className="font-body text-[10px] tracking-widest text-gold">{selectedSize}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                {product.sizes.map(size => {
+                  const sizePrice = product.sizePrices?.[size];
+                  return (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`py-3.5 px-2 text-[10px] uppercase tracking-[0.2em] font-light transition-all duration-300 border flex flex-col items-center gap-1 ${
+                        selectedSize === size
+                          ? 'border-gold bg-gold text-ivory'
+                          : 'border-linen text-stone hover:border-gold/40 hover:text-gold'
+                      }`}
+                    >
+                      <span>{size}</span>
+                      {sizePrice && (
+                        <span className={`text-[11px] font-semibold ${selectedSize === size ? 'text-ivory' : 'text-forest'}`}>
+                          ₹{sizePrice.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Price Block — updates when size is clicked */}
             <div className="py-6 border-y border-linen mb-8">
               <div className="flex items-end gap-5 mb-2">
-                <span className="font-display text-4xl text-forest tracking-widest leading-none font-semibold">
+                <span className="font-display text-4xl text-forest tracking-widest leading-none font-semibold transition-all duration-300">
                   ₹{currentPrice.toLocaleString('en-IN')}
                 </span>
                 {currentMrp > currentPrice && (
@@ -149,29 +180,6 @@ export default function ProductDetailPage() {
               </div>
               <div className="text-[10px] uppercase tracking-[0.3em] font-light text-stone/50 mt-3">
                 Inclusive of all taxes{currentSavings > 0 && ` · You save ₹${currentSavings.toLocaleString('en-IN')}`}
-              </div>
-            </div>
-
-            {/* Size Selector */}
-            <div className="mb-10">
-              <div className="flex justify-between items-center mb-5">
-                <span className="font-body text-[10px] uppercase tracking-[0.3em] text-stone/60">Select Size / Variant</span>
-                <span className="font-body text-[10px] tracking-widest text-gold">{selectedSize}</span>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
-                {product.sizes.map(size => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 text-[10px] uppercase tracking-[0.2em] font-light transition-all duration-300 border ${
-                      selectedSize === size
-                        ? 'border-gold bg-gold text-ivory'
-                        : 'border-linen text-stone hover:border-gold/40 hover:text-gold'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
               </div>
             </div>
 
