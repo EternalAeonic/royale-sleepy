@@ -168,7 +168,7 @@ export default function ContactPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-5 bg-white border border-linen rounded-2xl">
                 <p className="font-body text-[9px] uppercase tracking-widest text-stone/40 mb-2">GST Number</p>
-                <p className="font-body text-sm text-bark font-semibold">21HJ0PD6793P1Z0</p>
+                <p className="font-body text-sm text-bark font-semibold">21HJ0PD6793P1ZD</p>
                 <p className="font-body text-xs text-stone/50 mt-1">Sree Sainath Enterprise</p>
               </div>
               <a
